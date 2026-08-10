@@ -1,0 +1,603 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+
+    background: #f5f6f8;
+    color: #222;
+}
+
+
+/* =========================
+   ヘッダー
+========================= */
+
+.header {
+    height: 64px;
+    background: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 16px;
+
+    border-bottom: 1px solid #ddd;
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header h1 {
+    font-size: 21px;
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+button {
+    border: none;
+    background: #eee;
+    border-radius: 8px;
+
+    padding: 9px 13px;
+
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+#addPlanBtn {
+    background: #222;
+    color: white;
+}
+
+
+/* =========================
+   メイン
+========================= */
+
+main {
+    max-width: 900px;
+    margin: auto;
+    padding: 16px;
+}
+
+
+/* =========================
+   カレンダー操作
+========================= */
+
+.calendar-controls {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 25px;
+
+    margin-bottom: 12px;
+}
+
+.calendar-controls h2 {
+    min-width: 150px;
+
+    text-align: center;
+
+    font-size: 20px;
+
+    margin: 0;
+}
+
+.calendar-controls button {
+    width: 40px;
+    height: 40px;
+
+    font-size: 25px;
+
+    padding: 0;
+}
+
+
+/* =========================
+   カレンダー
+========================= */
+
+.calendar {
+    background: white;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+
+/* 曜日 */
+
+.weekdays {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
+    border-bottom: 1px solid #ddd;
+}
+
+.weekdays div {
+    text-align: center;
+
+    padding: 9px 0;
+
+    font-size: 13px;
+
+    color: #666;
+
+    font-weight: bold;
+}
+
+
+/* 日付 */
+
+.calendar-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, 1fr);
+}
+
+.calendar-day {
+    min-height: 90px;
+
+    padding: 6px;
+
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+
+    cursor: pointer;
+
+    position: relative;
+
+    background: white;
+}
+
+.calendar-day:hover {
+    background: #f7f7f7;
+}
+
+
+/* 前月・次月の日付 */
+
+.calendar-day.other-month {
+    color: #bbb;
+
+    background: #fafafa;
+}
+
+
+/* 今日 */
+
+.calendar-day.today .day-number {
+    background: #222;
+    color: white;
+
+    border-radius: 50%;
+}
+
+.day-number {
+    width: 26px;
+    height: 26px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 13px;
+
+    margin-bottom: 3px;
+}
+
+
+/* 選択中 */
+
+.calendar-day.selected {
+    background: #f0f4ff;
+}
+
+
+/* =========================
+   カレンダー内の学習計画
+========================= */
+
+.calendar-plan {
+    font-size: 11px;
+
+    padding: 3px 5px;
+
+    margin-top: 3px;
+
+    border-radius: 4px;
+
+    background: #e8e8e8;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* カテゴリ */
+
+.calendar-plan.math {
+    background: #e7ddff;
+}
+
+.calendar-plan.statistics {
+    background: #dcecff;
+}
+
+.calendar-plan.economics {
+    background: #dff5df;
+}
+
+.calendar-plan.programming {
+    background: #ffe5d5;
+}
+
+.calendar-plan.english {
+    background: #fff2c7;
+}
+
+.calendar-plan.other {
+    background: #e8e8e8;
+}
+
+
+/* =========================
+   学習計画一覧
+========================= */
+
+.plan-section {
+    margin-top: 20px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+}
+
+.section-header h2 {
+    font-size: 18px;
+
+    margin: 0;
+}
+
+
+/* 計画 */
+
+.plan-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px 4px;
+
+    border-bottom: 1px solid #eee;
+}
+
+.plan-item:last-child {
+    border-bottom: none;
+}
+
+.plan-check {
+    width: 22px;
+    height: 22px;
+}
+
+.plan-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.plan-title {
+    font-weight: bold;
+
+    font-size: 15px;
+}
+
+.plan-time {
+    font-size: 13px;
+
+    color: #666;
+
+    margin-top: 3px;
+}
+
+.plan-memo {
+    font-size: 12px;
+
+    color: #888;
+
+    margin-top: 4px;
+}
+
+.plan-completed .plan-title {
+    text-decoration: line-through;
+
+    color: #999;
+}
+
+.delete-plan {
+    background: transparent;
+
+    color: #999;
+
+    font-size: 18px;
+
+    padding: 5px;
+}
+
+
+/* =========================
+   計画がない場合
+========================= */
+
+.no-plan {
+    text-align: center;
+
+    color: #999;
+
+    padding: 25px 10px;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   モーダル
+========================= */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 16px;
+
+    z-index: 100;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+
+    width: 100%;
+
+    max-width: 500px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    border-radius: 14px;
+
+    padding: 20px;
+}
+
+.modal-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+}
+
+.modal-header h2 {
+    margin: 0;
+
+    font-size: 19px;
+}
+
+#closeModalBtn {
+    background: transparent;
+
+    font-size: 25px;
+
+    padding: 0 5px;
+}
+
+
+/* =========================
+   フォーム
+========================= */
+
+#planForm {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+#planForm label {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    font-size: 14px;
+
+    font-weight: bold;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    font-family: inherit;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.checkbox-label {
+    flex-direction: row !important;
+
+    align-items: center;
+
+    gap: 8px !important;
+}
+
+.checkbox-label input {
+    width: 18px;
+    height: 18px;
+}
+
+
+/* =========================
+   フォームボタン
+========================= */
+
+.form-buttons {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 5px;
+}
+
+.save-button {
+    background: #222;
+
+    color: white;
+
+    min-width: 80px;
+}
+
+
+/* =========================
+   スマホ
+========================= */
+
+@media (max-width: 600px) {
+
+    .header {
+        height: 58px;
+
+        padding: 0 10px;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .header-buttons button {
+        padding: 8px 9px;
+
+        font-size: 12px;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    .calendar-controls {
+        gap: 15px;
+    }
+
+    .calendar-controls h2 {
+        font-size: 18px;
+
+        min-width: 130px;
+    }
+
+    .calendar-day {
+        min-height: 70px;
+
+        padding: 4px;
+    }
+
+    .day-number {
+        width: 23px;
+        height: 23px;
+
+        font-size: 12px;
+    }
+
+    .calendar-plan {
+        font-size: 9px;
+
+        padding: 2px 3px;
+    }
+
+    .plan-section {
+        padding: 12px;
+    }
+
+    .modal-content {
+        padding: 16px;
+
+        border-radius: 12px;
+    }
+}
