@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+
+    <title>学習計画カレンダー</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>学習計画</h1>
+
+        <div class="header-buttons">
+            <button id="todayBtn">今日</button>
+            <button id="addPlanBtn">＋ 学習計画</button>
+        </div>
+    </header>
+
+
+    <main>
+
+        <!-- カレンダー操作 -->
+        <section class="calendar-controls">
+
+            <button id="prevMonthBtn">‹</button>
+
+            <h2 id="monthTitle">2026年8月</h2>
+
+            <button id="nextMonthBtn">›</button>
+
+        </section>
+
+
+        <!-- カレンダー -->
+        <section class="calendar">
+
+            <div class="weekdays">
+                <div>日</div>
+                <div>月</div>
+                <div>火</div>
+                <div>水</div>
+                <div>木</div>
+                <div>金</div>
+                <div>土</div>
+            </div>
+
+            <div id="calendarGrid" class="calendar-grid">
+                <!-- JavaScriptで生成 -->
+            </div>
+
+        </section>
+
+
+        <!-- 選択日の学習計画 -->
+        <section class="plan-section">
+
+            <div class="section-header">
+                <h2 id="selectedDateTitle">
+                    学習計画
+                </h2>
+
+                <button id="addPlanForDateBtn">
+                    ＋追加
+                </button>
+            </div>
+
+            <div id="planList" class="plan-list">
+                <!-- JavaScriptで表示 -->
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- 学習計画追加モーダル -->
+    <div id="planModal" class="modal hidden">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2>学習計画を追加</h2>
+
+                <button id="closeModalBtn">
+                    ×
+                </button>
+            </div>
+
+
+            <form id="planForm">
+
+                <label>
+                    日付
+                    <input
+                        type="date"
+                        id="planDate"
+                        required
+                    >
+                </label>
+
+
+                <label>
+                    科目・内容
+                    <input
+                        type="text"
+                        id="planTitle"
+                        placeholder="例：統計検定2級"
+                        required
+                    >
+                </label>
+
+
+                <label>
+                    開始時刻
+                    <input
+                        type="time"
+                        id="planStart"
+                    >
+                </label>
+
+
+                <label>
+                    終了時刻
+                    <input
+                        type="time"
+                        id="planEnd"
+                    >
+                </label>
+
+
+                <label>
+                    学習時間（分）
+                    <input
+                        type="number"
+                        id="planMinutes"
+                        min="0"
+                        placeholder="60"
+                    >
+                </label>
+
+
+                <label>
+                    カテゴリ
+                    <select id="planCategory">
+
+                        <option value="math">
+                            数学
+                        </option>
+
+                        <option value="statistics">
+                            統計
+                        </option>
+
+                        <option value="economics">
+                            経済
+                        </option>
+
+                        <option value="programming">
+                            プログラミング
+                        </option>
+
+                        <option value="english">
+                            英語
+                        </option>
+
+                        <option value="other">
+                            その他
+                        </option>
+
+                    </select>
+                </label>
+
+
+                <label>
+                    メモ
+                    <textarea
+                        id="planMemo"
+                        rows="4"
+                        placeholder="学習内容や目標など"
+                    ></textarea>
+                </label>
+
+
+                <label class="checkbox-label">
+
+                    <input
+                        type="checkbox"
+                        id="planCompleted"
+                    >
+
+                    完了済みにする
+
+                </label>
+
+
+                <div class="form-buttons">
+
+                    <button
+                        type="button"
+                        id="cancelPlanBtn"
+                    >
+                        キャンセル
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="save-button"
+                    >
+                        保存
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script src="js/app.js"></script>
+
+</body>
+</html>
