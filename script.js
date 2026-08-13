@@ -1,66 +1,64 @@
-/* =========================================
-   データ
-========================================= */
+"use strict";
 
-const STORAGE_KEY = "my_timetable_app_v1";
+/* =========================
+   基本設定
+========================= */
+
+const STORAGE_KEY = "timetable_app_v2";
 
 const DAYS = ["月", "火", "水", "木", "金"];
 
-let data = loadData();
+const DEFAULT_COLORS = [
+    "#FFD6D6",
+    "#FFE7B8",
+    "#FFF5B1",
+    "#D5F5D1",
+    "#CFE8FF",
+    "#E5D5FF"
+];
 
-let currentScheduleId = data.currentScheduleId;
 
-let editingClassId = null;
+/* =========================
+   データ
+========================= */
 
+function id() {
+    return Date.now().toString(36) +
+        Math.random().toString(36).slice(2);
+}
 
-/* =========================================
-   初期データ
-========================================= */
+function defaultData() {
 
-function createInitialData() {
-
-    const defaultSchedule = {
-        id: createId(),
+    const schedule = {
+        id: id(),
         name: "時間割1",
         classes: []
     };
 
     return {
+        schedules: [schedule],
 
-        schedules: [defaultSchedule],
-
-        currentScheduleId: defaultSchedule.id,
+        currentScheduleId: schedule.id,
 
         categories: [
             {
-                id: createId(),
+                id: id(),
                 name: "必修"
             },
             {
-                id: createId(),
+                id: id(),
                 name: "選択"
             },
             {
-                id: createId(),
+                id: id(),
                 name: "専門"
             }
         ],
 
-        colors: [
-            "#FFD6D6",
-            "#FFE7B8",
-            "#FFF5B1",
-            "#D5F5D1",
-            "#CFE8FF",
-            "#E5D5FF"
-        ]
+        colors: [...DEFAULT_COLORS]
     };
 }
 
-
-/* =========================================
-   保存・読み込み
-========================================= */
 
 function loadData() {
 
@@ -74,21 +72,26 @@ function loadData() {
             const parsed = JSON.parse(saved);
 
             if (
-                parsed.schedules &&
-                parsed.categories &&
-                parsed.colors
+                parsed &&
+                Array.isArray(parsed.schedules) &&
+                Array.isArray(parsed.categories) &&
+                Array.isArray(parsed.colors)
             ) {
+
                 return parsed;
             }
         }
 
-    } catch (error) {
+    } catch (e) {
 
-        console.error(error);
+        console.error("読み込みエラー:", e);
     }
 
-    return createInitialData();
+    return defaultData();
 }
+
+
+let data = loadData();
 
 
 function saveData() {
@@ -100,33 +103,30 @@ function saveData() {
 }
 
 
-/* =========================================
-   ID
-========================================= */
+function currentSchedule() {
 
-function createId() {
+    let schedule =
+        data.schedules.find(
+            s => s.id === data.currentScheduleId
+        );
 
-    return Date.now().toString(36)
-        + Math.random().toString(36).substring(2);
+    if (!schedule) {
+
+        schedule = data.schedules[0];
+
+        data.currentScheduleId =
+            schedule.id;
+
+        saveData();
+    }
+
+    return schedule;
 }
 
 
-/* =========================================
-   現在の時間割
-========================================= */
-
-function getCurrentSchedule() {
-
-    return data.schedules.find(
-        schedule =>
-            schedule.id === currentScheduleId
-    );
-}
-
-
-/* =========================================
+/* =========================
    DOM
-========================================= */
+========================= */
 
 const scheduleSelect =
     document.getElementById("scheduleSelect");
@@ -207,11 +207,49 @@ const customColors =
     document.getElementById("customColors");
 
 
-/* =========================================
-   時間割セレクト
-========================================= */
+let editingClassId = null;
 
-function renderScheduleSelect() {
+
+/* =========================
+   安全チェック
+========================= */
+
+function checkDOM() {
+
+    const required = [
+        scheduleSelect,
+        addScheduleBtn,
+        newClassBtn,
+        classModal,
+        saveClassBtn,
+        className,
+        classCredits,
+        classCategory,
+        classColor,
+        slotGrid
+    ];
+
+    return required.every(x => x !== null);
+}
+
+
+if (!checkDOM()) {
+
+    alert(
+        "HTMLとJavaScriptの組み合わせが違います。"
+    );
+
+    throw new Error(
+        "必要なHTML要素がありません"
+    );
+}
+
+
+/* =========================
+   時間割一覧
+========================= */
+
+function renderSchedules() {
 
     scheduleSelect.innerHTML = "";
 
@@ -222,9 +260,13 @@ function renderScheduleSelect() {
 
         option.value = schedule.id;
 
-        option.textContent = schedule.name;
+        option.textContent =
+            schedule.name;
 
-        if (schedule.id === currentScheduleId) {
+        if (
+            schedule.id ===
+            data.currentScheduleId
+        ) {
             option.selected = true;
         }
 
@@ -233,14 +275,14 @@ function renderScheduleSelect() {
 }
 
 
-/* =========================================
-   時間割描画
-========================================= */
+/* =========================
+   時間割表示
+========================= */
 
 function renderTimetable() {
 
     const schedule =
-        getCurrentSchedule();
+        currentSchedule();
 
     document
         .querySelectorAll(".cell")
@@ -265,7 +307,75 @@ function renderTimetable() {
             classes.forEach(cls => {
 
                 const card =
-                    createClassCard(cls);
+                    document.createElement("div");
+
+                card.className =
+                    "class-card";
+
+                card.style.backgroundColor =
+                    cls.color || "#eeeeee";
+
+                const title =
+                    document.createElement("div");
+
+                title.className =
+                    "class-name";
+
+                title.textContent =
+                    cls.name;
+
+                card.appendChild(title);
+
+
+                if (cls.category) {
+
+                    const category =
+                        document.createElement("div");
+
+                    category.className =
+                        "class-category";
+
+                    category.textContent =
+                        cls.category;
+
+                    card.appendChild(category);
+                }
+
+
+                const info =
+                    document.createElement("div");
+
+                info.className =
+                    "class-info";
+
+                const text = [];
+
+                if (cls.credits > 0) {
+                    text.push(
+                        cls.credits + "単位"
+                    );
+                }
+
+                if (cls.room) {
+                    text.push(cls.room);
+                }
+
+                info.textContent =
+                    text.join(" / ");
+
+                card.appendChild(info);
+
+
+                card.addEventListener(
+                    "click",
+                    function(e) {
+
+                        e.stopPropagation();
+
+                        openEditClass(cls.id);
+                    }
+                );
+
 
                 cell.appendChild(card);
             });
@@ -273,181 +383,199 @@ function renderTimetable() {
 }
 
 
-/* =========================================
-   授業カード
-========================================= */
+/* =========================
+   科目群
+========================= */
 
-function createClassCard(cls) {
+function renderCategories(selected = "") {
 
-    const card =
-        document.createElement("div");
+    classCategory.innerHTML = "";
 
-    card.className = "class-card";
+    data.categories.forEach(category => {
 
-    card.style.backgroundColor =
-        cls.color;
+        const option =
+            document.createElement("option");
 
-    const name =
-        document.createElement("div");
+        option.value =
+            category.id;
 
-    name.className = "class-name";
+        option.textContent =
+            category.name;
 
-    name.textContent =
-        cls.name;
+        if (
+            category.name === selected
+        ) {
+            option.selected = true;
+        }
 
-    card.appendChild(name);
+        classCategory.appendChild(option);
+    });
 
 
-    if (cls.category) {
+    categoryList.innerHTML = "";
 
-        const category =
+    data.categories.forEach(category => {
+
+        const row =
             document.createElement("div");
 
-        category.className =
-            "class-category";
-
-        category.textContent =
-            cls.category;
-
-        card.appendChild(category);
-    }
+        row.className =
+            "category-item";
 
 
-    const info =
-        document.createElement("div");
+        const name =
+            document.createElement("span");
 
-    info.className =
-        "class-info";
+        name.className =
+            "category-name";
 
-    const details = [];
-
-    if (cls.credits) {
-        details.push(`${cls.credits}単位`);
-    }
-
-    if (cls.room) {
-        details.push(cls.room);
-    }
-
-    if (cls.teacher) {
-        details.push(cls.teacher);
-    }
-
-    info.textContent =
-        details.join(" / ");
-
-    card.appendChild(info);
+        name.textContent =
+            category.name;
 
 
-    card.addEventListener(
-        "click",
-        event => {
+        const button =
+            document.createElement("button");
 
-            event.stopPropagation();
+        button.textContent = "削除";
 
-            openEditClass(cls.id);
-        }
-    );
+        button.addEventListener(
+            "click",
+            function() {
 
+                if (
+                    data.categories.length <= 1
+                ) {
 
-    return card;
-}
+                    alert(
+                        "科目群は最低1つ必要です。"
+                    );
 
-
-/* =========================================
-   授業追加画面
-========================================= */
-
-function openNewClass() {
-
-    editingClassId = null;
-
-    document.getElementById("modalTitle")
-        .textContent = "授業を追加";
-
-    className.value = "";
-    classRoom.value = "";
-    classTeacher.value = "";
-    classCredits.value = "2";
-
-    renderCategories();
-    renderColors();
-    renderSlots([]);
-
-    classModal.classList.remove("hidden");
-}
+                    return;
+                }
 
 
-/* =========================================
-   授業編集
-========================================= */
+                if (
+                    !confirm(
+                        "「" +
+                        category.name +
+                        "」を削除しますか？"
+                    )
+                ) {
+                    return;
+                }
 
-function openEditClass(id) {
 
-    const schedule =
-        getCurrentSchedule();
+                data.categories =
+                    data.categories.filter(
+                        c =>
+                            c.id !== category.id
+                    );
 
-    const cls =
-        schedule.classes.find(
-            item => item.id === id
+                saveData();
+
+                renderCategories();
+            }
         );
 
-    if (!cls) return;
 
-    editingClassId = id;
+        row.appendChild(name);
+        row.appendChild(button);
 
-    document.getElementById("modalTitle")
-        .textContent = "授業を編集";
-
-    className.value =
-        cls.name;
-
-    classRoom.value =
-        cls.room || "";
-
-    classTeacher.value =
-        cls.teacher || "";
-
-    classCredits.value =
-        cls.credits || 0;
-
-    renderCategories(cls.category);
-    renderColors(cls.color);
-    renderSlots(cls.slots);
-
-    classModal.classList.remove("hidden");
+        categoryList.appendChild(row);
+    });
 }
 
 
-/* =========================================
-   コマ選択
-========================================= */
+/* =========================
+   色
+========================= */
 
-function renderSlots(selectedSlots) {
+function renderColors(selected = "") {
+
+    classColor.innerHTML = "";
+
+    data.colors.forEach(color => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = color;
+
+        option.textContent = color;
+
+        if (color === selected) {
+            option.selected = true;
+        }
+
+        classColor.appendChild(option);
+    });
+
+
+    if (customColors) {
+
+        customColors.innerHTML = "";
+
+        data.colors.forEach(color => {
+
+            const row =
+                document.createElement("div");
+
+            row.style.marginBottom = "5px";
+
+
+            const preview =
+                document.createElement("span");
+
+            preview.className =
+                "color-preview";
+
+            preview.style.backgroundColor =
+                color;
+
+
+            const text =
+                document.createElement("span");
+
+            text.textContent = color;
+
+
+            row.appendChild(preview);
+            row.appendChild(text);
+
+            customColors.appendChild(row);
+        });
+    }
+}
+
+
+/* =========================
+   コマ選択
+========================= */
+
+function renderSlots(selected = []) {
 
     slotGrid.innerHTML = "";
 
 
     // 左上
-    const empty =
-        document.createElement("div");
-
-    slotGrid.appendChild(empty);
+    slotGrid.appendChild(
+        document.createElement("div")
+    );
 
 
     // 曜日
     DAYS.forEach(day => {
 
-        const element =
+        const div =
             document.createElement("div");
 
-        element.className =
+        div.className =
             "slot-day";
 
-        element.textContent =
+        div.textContent =
             day;
 
-        slotGrid.appendChild(element);
+        slotGrid.appendChild(div);
     });
 
 
@@ -458,16 +586,16 @@ function renderSlots(selectedSlots) {
         period++
     ) {
 
-        const periodElement =
+        const periodDiv =
             document.createElement("div");
 
-        periodElement.className =
+        periodDiv.className =
             "slot-period";
 
-        periodElement.textContent =
-            `${period}限`;
+        periodDiv.textContent =
+            period + "限";
 
-        slotGrid.appendChild(periodElement);
+        slotGrid.appendChild(periodDiv);
 
 
         for (
@@ -476,10 +604,10 @@ function renderSlots(selectedSlots) {
             day++
         ) {
 
-            const wrapper =
+            const label =
                 document.createElement("label");
 
-            wrapper.className =
+            label.className =
                 "slot-checkbox";
 
 
@@ -496,49 +624,52 @@ function renderSlots(selectedSlots) {
                 period;
 
 
-            const exists =
-                selectedSlots.some(slot =>
-                    slot.day === day &&
-                    slot.period === period
+            const checked =
+                selected.some(slot =>
+                    Number(slot.day) === day &&
+                    Number(slot.period) === period
                 );
 
             checkbox.checked =
-                exists;
+                checked;
 
 
-            wrapper.appendChild(checkbox);
+            label.appendChild(checkbox);
 
-            slotGrid.appendChild(wrapper);
+            slotGrid.appendChild(label);
         }
     }
 }
 
 
-/* =========================================
-   選択されたコマ取得
-========================================= */
+/* =========================
+   選択コマ取得
+========================= */
 
 function getSelectedSlots() {
+
+    const slots = [];
 
     const checkboxes =
         slotGrid.querySelectorAll(
             "input[type='checkbox']"
         );
 
-    const slots = [];
-
     checkboxes.forEach(checkbox => {
 
         if (checkbox.checked) {
 
             slots.push({
-                day: Number(
-                    checkbox.dataset.day
-                ),
 
-                period: Number(
-                    checkbox.dataset.period
-                )
+                day:
+                    Number(
+                        checkbox.dataset.day
+                    ),
+
+                period:
+                    Number(
+                        checkbox.dataset.period
+                    )
             });
         }
     });
@@ -547,9 +678,112 @@ function getSelectedSlots() {
 }
 
 
-/* =========================================
+/* =========================
+   授業追加
+========================= */
+
+function openNewClass() {
+
+    editingClassId = null;
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent = "授業を追加";
+
+
+    className.value = "";
+
+    classRoom.value = "";
+
+    classTeacher.value = "";
+
+    classCredits.value = "2";
+
+
+    renderCategories();
+
+    renderColors(
+        data.colors[0]
+    );
+
+    renderSlots([]);
+
+
+    addDeleteButton();
+
+
+    classModal.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* =========================
+   授業編集
+========================= */
+
+function openEditClass(classId) {
+
+    const schedule =
+        currentSchedule();
+
+    const cls =
+        schedule.classes.find(
+            c => c.id === classId
+        );
+
+    if (!cls) {
+        return;
+    }
+
+
+    editingClassId =
+        classId;
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent = "授業を編集";
+
+
+    className.value =
+        cls.name || "";
+
+    classRoom.value =
+        cls.room || "";
+
+    classTeacher.value =
+        cls.teacher || "";
+
+    classCredits.value =
+        cls.credits || 0;
+
+
+    renderCategories(
+        cls.category || ""
+    );
+
+    renderColors(
+        cls.color || data.colors[0]
+    );
+
+    renderSlots(
+        cls.slots || []
+    );
+
+
+    addDeleteButton();
+
+
+    classModal.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* =========================
    授業保存
-========================================= */
+========================= */
 
 function saveClass() {
 
@@ -558,7 +792,9 @@ function saveClass() {
 
     if (!name) {
 
-        alert("授業名を入力してください。");
+        alert(
+            "授業名を入力してください。"
+        );
 
         return;
     }
@@ -569,25 +805,40 @@ function saveClass() {
 
     if (slots.length === 0) {
 
-        alert("少なくとも1つコマを選択してください。");
+        alert(
+            "コマを1つ以上選択してください。"
+        );
 
         return;
     }
 
 
     const schedule =
-        getCurrentSchedule();
+        currentSchedule();
 
 
-    const categoryOption =
-        classCategory.options[
-            classCategory.selectedIndex
-        ];
+    const categoryIndex =
+        classCategory.selectedIndex;
 
 
-    const clsData = {
+    let category = "";
 
-        id: editingClassId || createId(),
+    if (
+        categoryIndex >= 0 &&
+        classCategory.options[categoryIndex]
+    ) {
+
+        category =
+            classCategory
+                .options[categoryIndex]
+                .textContent;
+    }
+
+
+    const newClass = {
+
+        id:
+            editingClassId || id(),
 
         name: name,
 
@@ -600,47 +851,33 @@ function saveClass() {
         credits:
             Number(classCredits.value) || 0,
 
-        category:
-            categoryOption
-                ? categoryOption.textContent
-                : "",
+        category: category,
 
         color:
             classColor.value,
 
-        slots:
-            slots
+        slots: slots
     };
 
-
-    /* =====================================
-       既存授業を編集
-    ===================================== */
 
     if (editingClassId) {
 
         const index =
             schedule.classes.findIndex(
-                cls =>
-                    cls.id === editingClassId
+                c =>
+                    c.id === editingClassId
             );
 
         if (index !== -1) {
 
             schedule.classes[index] =
-                clsData;
+                newClass;
         }
 
-    }
-
-    /* =====================================
-       新規授業
-    ===================================== */
-
-    else {
+    } else {
 
         schedule.classes.push(
-            clsData
+            newClass
         );
     }
 
@@ -653,35 +890,50 @@ function saveClass() {
 }
 
 
-/* =========================================
+/* =========================
    授業削除
-========================================= */
+========================= */
 
-function deleteClass(id) {
+function deleteCurrentClass() {
+
+    if (!editingClassId) {
+        return;
+    }
+
 
     const schedule =
-        getCurrentSchedule();
+        currentSchedule();
+
 
     const cls =
         schedule.classes.find(
-            item => item.id === id
+            c =>
+                c.id === editingClassId
         );
 
-    if (!cls) return;
+
+    if (!cls) {
+        return;
+    }
 
 
-    const result =
-        confirm(
-            `「${cls.name}」を削除しますか？`
-        );
-
-    if (!result) return;
+    if (
+        !confirm(
+            "「" +
+            cls.name +
+            "」を削除しますか？"
+        )
+    ) {
+        return;
+    }
 
 
     schedule.classes =
         schedule.classes.filter(
-            item => item.id !== id
+            c =>
+                c.id !== editingClassId
         );
+
 
     saveData();
 
@@ -691,9 +943,68 @@ function deleteClass(id) {
 }
 
 
-/* =========================================
-   モーダルを閉じる
-========================================= */
+/* =========================
+   削除ボタン
+========================= */
+
+function addDeleteButton() {
+
+    let button =
+        document.getElementById(
+            "deleteClassBtn"
+        );
+
+
+    if (!button) {
+
+        button =
+            document.createElement("button");
+
+        button.id =
+            "deleteClassBtn";
+
+        button.textContent =
+            "授業を削除";
+
+        button.style.background =
+            "#ffe0e0";
+
+        button.style.color =
+            "#b00000";
+
+
+        const buttons =
+            document.querySelector(
+                "#classModal .modal-buttons"
+            );
+
+
+        if (buttons) {
+
+            buttons.insertBefore(
+                button,
+                saveClassBtn
+            );
+        }
+
+
+        button.addEventListener(
+            "click",
+            deleteCurrentClass
+        );
+    }
+
+
+    button.style.display =
+        editingClassId
+            ? "block"
+            : "none";
+}
+
+
+/* =========================
+   モーダル
+========================= */
 
 function closeClassModal() {
 
@@ -704,115 +1015,6 @@ function closeClassModal() {
     editingClassId = null;
 }
 
-
-/* =========================================
-   科目群
-========================================= */
-
-function renderCategories(selectedName = "") {
-
-    classCategory.innerHTML = "";
-
-    data.categories.forEach(category => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            category.id;
-
-        option.textContent =
-            category.name;
-
-        if (
-            category.name === selectedName
-        ) {
-            option.selected = true;
-        }
-
-        classCategory.appendChild(option);
-    });
-
-
-    categoryList.innerHTML = "";
-
-
-    data.categories.forEach(category => {
-
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "category-item";
-
-
-        const name =
-            document.createElement("span");
-
-        name.className =
-            "category-name";
-
-        name.textContent =
-            category.name;
-
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.textContent =
-            "削除";
-
-
-        deleteButton.addEventListener(
-            "click",
-            () => {
-
-                if (
-                    data.categories.length <= 1
-                ) {
-
-                    alert(
-                        "科目群は最低1つ必要です。"
-                    );
-
-                    return;
-                }
-
-
-                const result =
-                    confirm(
-                        `「${category.name}」を削除しますか？`
-                    );
-
-                if (!result) return;
-
-
-                data.categories =
-                    data.categories.filter(
-                        item =>
-                            item.id !== category.id
-                    );
-
-
-                saveData();
-
-                renderCategories();
-
-            }
-        );
-
-
-        item.appendChild(name);
-        item.appendChild(deleteButton);
-
-        categoryList.appendChild(item);
-    });
-}
-
-
-/* =========================================
-   科目群追加
-========================================= */
 
 function openCategoryModal() {
 
@@ -832,6 +1034,10 @@ function closeCategoryModal() {
 }
 
 
+/* =========================
+   科目群追加
+========================= */
+
 function saveCategory() {
 
     const name =
@@ -839,7 +1045,9 @@ function saveCategory() {
 
     if (!name) {
 
-        alert("科目群名を入力してください。");
+        alert(
+            "科目群名を入力してください。"
+        );
 
         return;
     }
@@ -847,10 +1055,9 @@ function saveCategory() {
 
     data.categories.push({
 
-        id: createId(),
+        id: id(),
 
         name: name
-
     });
 
 
@@ -862,75 +1069,16 @@ function saveCategory() {
 }
 
 
-/* =========================================
-   色
-========================================= */
-
-function renderColors(selectedColor = "") {
-
-    classColor.innerHTML = "";
-
-    data.colors.forEach(color => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = color;
-
-        option.textContent = color;
-
-        if (color === selectedColor) {
-
-            option.selected = true;
-        }
-
-        classColor.appendChild(option);
-    });
-
-
-    customColors.innerHTML = "";
-
-
-    data.colors.forEach(color => {
-
-        const row =
-            document.createElement("div");
-
-        row.style.marginBottom =
-            "5px";
-
-
-        const preview =
-            document.createElement("span");
-
-        preview.className =
-            "color-preview";
-
-        preview.style.background =
-            color;
-
-
-        const text =
-            document.createElement("span");
-
-        text.textContent =
-            color;
-
-
-        row.appendChild(preview);
-        row.appendChild(text);
-
-
-        customColors.appendChild(row);
-    });
-}
-
-
-/* =========================================
+/* =========================
    色追加
-========================================= */
+========================= */
 
 function addNewColor() {
+
+    if (!newColor) {
+        return;
+    }
+
 
     const color =
         newColor.value;
@@ -940,7 +1088,9 @@ function addNewColor() {
         data.colors.includes(color)
     ) {
 
-        alert("その色はすでにあります。");
+        alert(
+            "その色はすでに登録されています。"
+        );
 
         return;
     }
@@ -954,29 +1104,36 @@ function addNewColor() {
 }
 
 
-/* =========================================
+/* =========================
    時間割追加
-========================================= */
+========================= */
 
 function addSchedule() {
 
     const name =
         prompt(
-            "新しい時間割の名前を入力してください。",
-            `時間割${data.schedules.length + 1}`
+            "時間割の名前",
+            "時間割" +
+            (data.schedules.length + 1)
         );
 
-    if (!name) return;
+
+    if (
+        !name ||
+        !name.trim()
+    ) {
+        return;
+    }
 
 
     const schedule = {
 
-        id: createId(),
+        id: id(),
 
-        name: name,
+        name:
+            name.trim(),
 
         classes: []
-
     };
 
 
@@ -984,11 +1141,9 @@ function addSchedule() {
         schedule
     );
 
-    currentScheduleId =
-        schedule.id;
 
     data.currentScheduleId =
-        currentScheduleId;
+        schedule.id;
 
 
     saveData();
@@ -997,16 +1152,14 @@ function addSchedule() {
 }
 
 
-/* =========================================
+/* =========================
    時間割名前変更
-========================================= */
+========================= */
 
 function renameSchedule() {
 
     const schedule =
-        getCurrentSchedule();
-
-    if (!schedule) return;
+        currentSchedule();
 
 
     const name =
@@ -1015,25 +1168,34 @@ function renameSchedule() {
             schedule.name
         );
 
-    if (!name) return;
+
+    if (
+        !name ||
+        !name.trim()
+    ) {
+        return;
+    }
 
 
     schedule.name =
         name.trim();
 
+
     saveData();
 
-    renderScheduleSelect();
+    renderSchedules();
 }
 
 
-/* =========================================
+/* =========================
    時間割削除
-========================================= */
+========================= */
 
 function deleteSchedule() {
 
-    if (data.schedules.length <= 1) {
+    if (
+        data.schedules.length <= 1
+    ) {
 
         alert(
             "時間割は最低1つ必要です。"
@@ -1044,28 +1206,29 @@ function deleteSchedule() {
 
 
     const schedule =
-        getCurrentSchedule();
+        currentSchedule();
 
-    const result =
-        confirm(
-            `「${schedule.name}」を削除しますか？`
-        );
 
-    if (!result) return;
+    if (
+        !confirm(
+            "「" +
+            schedule.name +
+            "」を削除しますか？"
+        )
+    ) {
+        return;
+    }
 
 
     data.schedules =
         data.schedules.filter(
-            item =>
-                item.id !== schedule.id
+            s =>
+                s.id !== schedule.id
         );
 
 
-    currentScheduleId =
-        data.schedules[0].id;
-
     data.currentScheduleId =
-        currentScheduleId;
+        data.schedules[0].id;
 
 
     saveData();
@@ -1074,19 +1237,16 @@ function deleteSchedule() {
 }
 
 
-/* =========================================
+/* =========================
    イベント
-========================================= */
+========================= */
 
 scheduleSelect.addEventListener(
     "change",
-    () => {
-
-        currentScheduleId =
-            scheduleSelect.value;
+    function() {
 
         data.currentScheduleId =
-            currentScheduleId;
+            this.value;
 
         saveData();
 
@@ -1167,16 +1327,16 @@ addColorBtn.addEventListener(
 );
 
 
-/* =========================================
+/* =========================
    モーダル外クリック
-========================================= */
+========================= */
 
 classModal.addEventListener(
     "click",
-    event => {
+    function(e) {
 
         if (
-            event.target === classModal
+            e.target === classModal
         ) {
             closeClassModal();
         }
@@ -1186,10 +1346,10 @@ classModal.addEventListener(
 
 categoryModal.addEventListener(
     "click",
-    event => {
+    function(e) {
 
         if (
-            event.target === categoryModal
+            e.target === categoryModal
         ) {
             closeCategoryModal();
         }
@@ -1197,118 +1357,15 @@ categoryModal.addEventListener(
 );
 
 
-/* =========================================
-   編集画面に削除ボタンを追加
-========================================= */
-
-function addDeleteButtonToModal() {
-
-    const container =
-        document.querySelector(
-            ".modal-buttons"
-        );
-
-    const deleteButton =
-        document.createElement("button");
-
-    deleteButton.id =
-        "deleteClassBtn";
-
-    deleteButton.textContent =
-        "授業を削除";
-
-    deleteButton.style.background =
-        "#ffdddd";
-
-    deleteButton.style.color =
-        "#b00000";
-
-    deleteButton.style.display =
-        "none";
-
-
-    container.insertBefore(
-        deleteButton,
-        saveClassBtn
-    );
-
-
-    deleteButton.addEventListener(
-        "click",
-        () => {
-
-            if (editingClassId) {
-
-                deleteClass(
-                    editingClassId
-                );
-            }
-        }
-    );
-}
-
-
-addDeleteButtonToModal();
-
-
-/* =========================================
-   編集時の削除ボタン表示
-========================================= */
-
-const originalOpenEditClass =
-    openEditClass;
-
-function updateDeleteButton() {
-
-    const button =
-        document.getElementById(
-            "deleteClassBtn"
-        );
-
-    if (!button) return;
-
-    button.style.display =
-        editingClassId
-            ? "block"
-            : "none";
-}
-
-
-/* =========================================
-   openNewClass / openEditClass後に更新
-========================================= */
-
-newClassBtn.addEventListener(
-    "click",
-    () => {
-
-        setTimeout(
-            updateDeleteButton,
-            0
-        );
-    }
-);
-
-
-document.addEventListener(
-    "click",
-    () => {
-
-        setTimeout(
-            updateDeleteButton,
-            0
-        );
-    }
-);
-
-
-/* =========================================
+/* =========================
    全体描画
-========================================= */
+========================= */
 
 function renderAll() {
 
-    renderScheduleSelect();
+    currentSchedule();
+
+    renderSchedules();
 
     renderTimetable();
 
@@ -1318,8 +1375,8 @@ function renderAll() {
 }
 
 
-/* =========================================
+/* =========================
    起動
-========================================= */
+========================= */
 
 renderAll();
