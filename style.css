@@ -1,0 +1,547 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: #f5f6f8;
+    color: #222;
+}
+
+body {
+    padding-bottom: 40px;
+}
+
+
+/* =========================
+   ヘッダー
+========================= */
+
+header {
+    background: white;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+h1 {
+    font-size: 22px;
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.schedule-bar {
+    display: flex;
+    gap: 5px;
+}
+
+.schedule-bar select {
+    flex: 1;
+    min-width: 0;
+}
+
+button,
+select,
+input {
+    font-size: 14px;
+}
+
+button {
+    border: none;
+    border-radius: 7px;
+    padding: 8px 10px;
+    background: #e9eaed;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+
+/* =========================
+   時間割
+========================= */
+
+.timetable-section {
+    padding: 8px 6px;
+}
+
+.timetable {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        32px
+        repeat(5, minmax(0, 1fr));
+
+    grid-template-rows:
+        28px
+        repeat(5, minmax(85px, 1fr));
+
+    background: #d7d9dd;
+
+    border: 1px solid #c5c7ca;
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+.corner {
+    background: #eeeeef;
+}
+
+
+.day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+    font-size: 13px;
+
+    background: #eeeeef;
+
+    border-left: 1px solid #d0d2d5;
+}
+
+
+.period {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eeeeef;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    border-top: 1px solid #d0d2d5;
+}
+
+
+.cell {
+    background: white;
+
+    border-left: 1px solid #d7d9dd;
+    border-top: 1px solid #d7d9dd;
+
+    padding: 2px;
+
+    min-width: 0;
+    min-height: 0;
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   授業カード
+========================= */
+
+.class-card {
+    width: 100%;
+    height: 100%;
+
+    border-radius: 6px;
+
+    padding: 5px 3px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    border-left: 4px solid rgba(0, 0, 0, 0.2);
+}
+
+.class-name {
+    font-size: 12px;
+    font-weight: bold;
+
+    line-height: 1.2;
+
+    word-break: break-word;
+}
+
+.class-category {
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    background: rgba(255,255,255,0.65);
+
+    border-radius: 4px;
+
+    padding: 1px 3px;
+
+    width: fit-content;
+}
+
+.class-info {
+    margin-top: auto;
+
+    font-size: 8px;
+
+    line-height: 1.2;
+
+    word-break: break-word;
+}
+
+
+/* =========================
+   ボタン
+========================= */
+
+.control-section {
+    padding: 5px 10px 15px;
+}
+
+.main-button {
+    width: 100%;
+
+    padding: 12px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    background: #222;
+    color: white;
+}
+
+
+/* =========================
+   科目群
+========================= */
+
+.category-section {
+    margin: 0 10px;
+    background: white;
+
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-title h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 8px 0;
+
+    border-bottom: 1px solid #eee;
+}
+
+.category-name {
+    font-weight: bold;
+}
+
+
+/* =========================
+   モーダル
+========================= */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.45);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 15px;
+
+    z-index: 100;
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 500px;
+
+    max-height: 92vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    border-radius: 14px;
+
+    padding: 16px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.modal-header button {
+    font-size: 24px;
+    background: none;
+}
+
+
+label {
+    display: block;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    margin-bottom: 12px;
+}
+
+label input,
+label select {
+    width: 100%;
+
+    margin-top: 5px;
+
+    padding: 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 7px;
+
+    background: white;
+}
+
+
+/* =========================
+   コマ選択
+========================= */
+
+.slot-title {
+    font-weight: bold;
+    font-size: 14px;
+
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+
+.slot-grid {
+    display: grid;
+
+    grid-template-columns:
+        45px
+        repeat(5, 1fr);
+
+    gap: 3px;
+
+    margin-bottom: 15px;
+}
+
+.slot-day,
+.slot-period,
+.slot-checkbox {
+    min-height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.slot-day,
+.slot-period {
+    background: #eee;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    border-radius: 4px;
+}
+
+.slot-checkbox {
+    background: #f5f5f5;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+}
+
+.slot-checkbox input {
+    width: 18px;
+    height: 18px;
+}
+
+
+/* =========================
+   色管理
+========================= */
+
+.color-manager {
+    margin-top: 10px;
+
+    padding-top: 10px;
+
+    border-top: 1px solid #eee;
+}
+
+.color-manager h3 {
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+
+.color-add {
+    display: flex;
+    gap: 8px;
+}
+
+.color-add input {
+    width: 50px;
+    height: 38px;
+
+    padding: 0;
+
+    border: none;
+}
+
+.color-preview {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 6px;
+
+    display: inline-block;
+
+    vertical-align: middle;
+
+    margin-right: 6px;
+}
+
+
+/* =========================
+   モーダルボタン
+========================= */
+
+.modal-buttons {
+    display: flex;
+    gap: 8px;
+
+    margin-top: 15px;
+}
+
+.modal-buttons button {
+    flex: 1;
+
+    padding: 11px;
+}
+
+.save-button {
+    background: #222;
+    color: white;
+}
+
+
+/* =========================
+   スマホ最適化
+========================= */
+
+@media (max-width: 500px) {
+
+    .schedule-bar button {
+        padding: 7px 5px;
+        font-size: 11px;
+    }
+
+    .timetable {
+        grid-template-columns:
+            28px
+            repeat(5, minmax(0, 1fr));
+
+        grid-template-rows:
+            27px
+            repeat(5, 82px);
+    }
+
+    .day {
+        font-size: 12px;
+    }
+
+    .period {
+        font-size: 10px;
+    }
+
+    .class-card {
+        padding: 4px 2px;
+    }
+
+    .class-name {
+        font-size: 10px;
+    }
+
+    .class-category {
+        font-size: 8px;
+    }
+
+    .class-info {
+        font-size: 7px;
+    }
+}
+
+
+/* かなり小さいスマホ */
+
+@media (max-width: 360px) {
+
+    .timetable {
+        grid-template-columns:
+            25px
+            repeat(5, minmax(0, 1fr));
+
+        grid-template-rows:
+            25px
+            repeat(5, 76px);
+    }
+
+    .class-name {
+        font-size: 9px;
+    }
+
+    .class-category {
+        font-size: 7px;
+    }
+
+    .class-info {
+        display: none;
+    }
+}
