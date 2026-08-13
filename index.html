@@ -2,228 +2,228 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+                   maximum-scale=1.0, user-scalable=no">
 
-    <title>学習計画カレンダー</title>
+    <title>時間割</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <header class="header">
-        <h1>学習計画</h1>
+<header>
+    <h1>時間割</h1>
 
-        <div class="header-buttons">
-            <button id="todayBtn">今日</button>
-            <button id="addPlanBtn">＋ 学習計画</button>
+    <div class="schedule-bar">
+        <select id="scheduleSelect"></select>
+        <button id="addScheduleBtn">＋時間割</button>
+        <button id="renameScheduleBtn">名前変更</button>
+        <button id="deleteScheduleBtn">削除</button>
+    </div>
+</header>
+
+
+<main>
+
+    <section class="timetable-section">
+
+        <div class="timetable" id="timetable">
+
+            <!-- 曜日 -->
+            <div class="corner"></div>
+            <div class="day">月</div>
+            <div class="day">火</div>
+            <div class="day">水</div>
+            <div class="day">木</div>
+            <div class="day">金</div>
+
+            <!-- 1限 -->
+            <div class="period">1限</div>
+            <div class="cell" data-day="0" data-period="1"></div>
+            <div class="cell" data-day="1" data-period="1"></div>
+            <div class="cell" data-day="2" data-period="1"></div>
+            <div class="cell" data-day="3" data-period="1"></div>
+            <div class="cell" data-day="4" data-period="1"></div>
+
+            <!-- 2限 -->
+            <div class="period">2限</div>
+            <div class="cell" data-day="0" data-period="2"></div>
+            <div class="cell" data-day="1" data-period="2"></div>
+            <div class="cell" data-day="2" data-period="2"></div>
+            <div class="cell" data-day="3" data-period="2"></div>
+            <div class="cell" data-day="4" data-period="2"></div>
+
+            <!-- 3限 -->
+            <div class="period">3限</div>
+            <div class="cell" data-day="0" data-period="3"></div>
+            <div class="cell" data-day="1" data-period="3"></div>
+            <div class="cell" data-day="2" data-period="3"></div>
+            <div class="cell" data-day="3" data-period="3"></div>
+            <div class="cell" data-day="4" data-period="3"></div>
+
+            <!-- 4限 -->
+            <div class="period">4限</div>
+            <div class="cell" data-day="0" data-period="4"></div>
+            <div class="cell" data-day="1" data-period="4"></div>
+            <div class="cell" data-day="2" data-period="4"></div>
+            <div class="cell" data-day="3" data-period="4"></div>
+            <div class="cell" data-day="4" data-period="4"></div>
+
+            <!-- 5限 -->
+            <div class="period">5限</div>
+            <div class="cell" data-day="0" data-period="5"></div>
+            <div class="cell" data-day="1" data-period="5"></div>
+            <div class="cell" data-day="2" data-period="5"></div>
+            <div class="cell" data-day="3" data-period="5"></div>
+            <div class="cell" data-day="4" data-period="5"></div>
+
         </div>
-    </header>
+
+    </section>
 
 
-    <main>
+    <section class="control-section">
 
-        <!-- カレンダー操作 -->
-        <section class="calendar-controls">
+        <button id="newClassBtn" class="main-button">
+            ＋ 授業を追加
+        </button>
 
-            <button id="prevMonthBtn">‹</button>
-
-            <h2 id="monthTitle">2026年8月</h2>
-
-            <button id="nextMonthBtn">›</button>
-
-        </section>
+    </section>
 
 
-        <!-- カレンダー -->
-        <section class="calendar">
+    <section class="category-section">
 
-            <div class="weekdays">
-                <div>日</div>
-                <div>月</div>
-                <div>火</div>
-                <div>水</div>
-                <div>木</div>
-                <div>金</div>
-                <div>土</div>
+        <div class="section-title">
+            <h2>科目群</h2>
+            <button id="addCategoryBtn">＋追加</button>
+        </div>
+
+        <div id="categoryList"></div>
+
+    </section>
+
+</main>
+
+
+<!-- 授業追加・編集モーダル -->
+
+<div class="modal hidden" id="classModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2 id="modalTitle">授業を追加</h2>
+            <button id="closeModalBtn">×</button>
+        </div>
+
+
+        <label>
+            授業名
+            <input type="text" id="className" placeholder="例：ミクロ経済学">
+        </label>
+
+
+        <label>
+            教室
+            <input type="text" id="classRoom" placeholder="例：W631">
+        </label>
+
+
+        <label>
+            担当教員
+            <input type="text" id="classTeacher" placeholder="例：山田先生">
+        </label>
+
+
+        <label>
+            単位数
+            <input type="number" id="classCredits"
+                   min="0" step="0.5" value="2">
+        </label>
+
+
+        <label>
+            科目群
+            <select id="classCategory"></select>
+        </label>
+
+
+        <label>
+            色
+            <select id="classColor"></select>
+        </label>
+
+
+        <div class="slot-title">
+            授業を入れるコマ
+        </div>
+
+        <div class="slot-grid" id="slotGrid"></div>
+
+
+        <div class="color-manager">
+
+            <h3>色の管理</h3>
+
+            <div id="customColors"></div>
+
+            <div class="color-add">
+                <input type="color" id="newColor">
+                <button id="addColorBtn">色を追加</button>
             </div>
 
-            <div id="calendarGrid" class="calendar-grid">
-                <!-- JavaScriptで生成 -->
-            </div>
-
-        </section>
+        </div>
 
 
-        <!-- 選択日の学習計画 -->
-        <section class="plan-section">
-
-            <div class="section-header">
-                <h2 id="selectedDateTitle">
-                    学習計画
-                </h2>
-
-                <button id="addPlanForDateBtn">
-                    ＋追加
-                </button>
-            </div>
-
-            <div id="planList" class="plan-list">
-                <!-- JavaScriptで表示 -->
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- 学習計画追加モーダル -->
-    <div id="planModal" class="modal hidden">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h2>学習計画を追加</h2>
-
-                <button id="closeModalBtn">
-                    ×
-                </button>
-            </div>
-
-
-            <form id="planForm">
-
-                <label>
-                    日付
-                    <input
-                        type="date"
-                        id="planDate"
-                        required
-                    >
-                </label>
-
-
-                <label>
-                    科目・内容
-                    <input
-                        type="text"
-                        id="planTitle"
-                        placeholder="例：統計検定2級"
-                        required
-                    >
-                </label>
-
-
-                <label>
-                    開始時刻
-                    <input
-                        type="time"
-                        id="planStart"
-                    >
-                </label>
-
-
-                <label>
-                    終了時刻
-                    <input
-                        type="time"
-                        id="planEnd"
-                    >
-                </label>
-
-
-                <label>
-                    学習時間（分）
-                    <input
-                        type="number"
-                        id="planMinutes"
-                        min="0"
-                        placeholder="60"
-                    >
-                </label>
-
-
-                <label>
-                    カテゴリ
-                    <select id="planCategory">
-
-                        <option value="math">
-                            数学
-                        </option>
-
-                        <option value="statistics">
-                            統計
-                        </option>
-
-                        <option value="economics">
-                            経済
-                        </option>
-
-                        <option value="programming">
-                            プログラミング
-                        </option>
-
-                        <option value="english">
-                            英語
-                        </option>
-
-                        <option value="other">
-                            その他
-                        </option>
-
-                    </select>
-                </label>
-
-
-                <label>
-                    メモ
-                    <textarea
-                        id="planMemo"
-                        rows="4"
-                        placeholder="学習内容や目標など"
-                    ></textarea>
-                </label>
-
-
-                <label class="checkbox-label">
-
-                    <input
-                        type="checkbox"
-                        id="planCompleted"
-                    >
-
-                    完了済みにする
-
-                </label>
-
-
-                <div class="form-buttons">
-
-                    <button
-                        type="button"
-                        id="cancelPlanBtn"
-                    >
-                        キャンセル
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="save-button"
-                    >
-                        保存
-                    </button>
-
-                </div>
-
-            </form>
-
+        <div class="modal-buttons">
+            <button id="cancelBtn">キャンセル</button>
+            <button id="saveClassBtn" class="save-button">
+                保存
+            </button>
         </div>
 
     </div>
 
+</div>
 
-    <script src="js/app.js"></script>
+
+<!-- 科目群追加 -->
+
+<div class="modal hidden" id="categoryModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>科目群を追加</h2>
+            <button id="closeCategoryBtn">×</button>
+        </div>
+
+        <label>
+            科目群名
+            <input type="text"
+                   id="categoryName"
+                   placeholder="例：必修">
+        </label>
+
+        <div class="modal-buttons">
+            <button id="cancelCategoryBtn">
+                キャンセル
+            </button>
+
+            <button id="saveCategoryBtn"
+                    class="save-button">
+                追加
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
 
 </body>
 </html>
